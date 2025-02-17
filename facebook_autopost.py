@@ -263,7 +263,7 @@ class FacebookAutoPost:
             return False
 
     
-    def create_post_with_retry(self, content, url, max_retries=3):
+    def create_post_with_retry(self, content, url, max_retries=2):
         for attempt in range(max_retries):
             try:
                 if self.create_comment(content, url):  #create post
@@ -297,7 +297,9 @@ class FacebookAutoPost:
 
     def generate_wrap_complaint(self, original_complaint):
         print("Generating new post content using Gemini AI")
-        return self.model.generate_content(original_complaint).text.strip()
+        return self.model.generate_content("please produce a single expanded version of this customer complaint to be "
+                                           "posted on a consumer website. It should not require further editing: "
+                                           +original_complaint).text.strip()
 
     def generate_post_content(self):
         print("Generating new post content using Gemini AI")
@@ -377,11 +379,12 @@ class FacebookAutoPost:
                     self.countdown_timer(self.post_interval)
                     continue
 
-                if post_count ==1:
+                if post_count == 1:
                     break
                 post_count += 1
 
-                print(f"Attempting to post content to your timeline: {post_content[:100]}...")
+                print(f"Attempting to post replies to comments on a business page: {post_content[:100]}...")
+
                 if self.create_post_with_retry(post_content, url):
                     print(f"Timeline post {post_count} completed successfully.")
                     print(f"\nTimeline post {post_count} completed. Content: {post_content[:100]}...")
@@ -391,6 +394,7 @@ class FacebookAutoPost:
                     print("Timeline post failed after multiple attempts.")
                     print("\nTimeline post failed. Moving to next post after countdown.")
                 self.countdown_timer(self.post_interval)
+
 
         except KeyboardInterrupt:
             print("\nScript stopped by user")
@@ -419,6 +423,9 @@ if __name__ == "__main__":
         profile_name=profile_name
     )
 
-    bot.make_a_comment_on_facebook("I got a voucher and tried to use but website is faulty",
-                                   "https://www.facebook.com/SouthwestAir")
+    bot.make_a_comment_on_facebook("мне очень не понравился ставропольский биойогурт. Он содержит 5 видов вредных пробиотиков", "https://www.facebook.com/groups/538779634453503")
+
+
+        #"I got a voucher and tried to use but website is faulty",
+        #                           "https://www.facebook.com/AirChina")
     # .run())
